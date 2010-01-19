@@ -25,30 +25,6 @@ namespace SurfaceToTUIO.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1024")]
-        public int DISPLAY_W {
-            get {
-                return ((int)(this["DISPLAY_W"]));
-            }
-            set {
-                this["DISPLAY_W"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("768")]
-        public int DISPLAY_H {
-            get {
-                return ((int)(this["DISPLAY_H"]));
-            }
-            set {
-                this["DISPLAY_H"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
         public string RemoteHost {
             get {
@@ -80,6 +56,18 @@ namespace SurfaceToTUIO.Properties {
             }
             set {
                 this["SendFingersAsBlobs"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SendFingersAlsoAsBlobs {
+            get {
+                return ((bool)(this["SendFingersAlsoAsBlobs"]));
+            }
+            set {
+                this["SendFingersAlsoAsBlobs"] = value;
             }
         }
     }

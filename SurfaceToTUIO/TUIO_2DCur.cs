@@ -34,6 +34,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Surface.Core;
 using OSC.NET;
+using System.Collections.Specialized;
 
 namespace SurfaceToTUIO
 {
@@ -41,9 +42,10 @@ namespace SurfaceToTUIO
     {
         public static OSCMessage sourceMessage()
         {
+            StringCollection localIP = Helper.getLocalIP();
             OSCMessage message = new OSCMessage("/tuio/2Dcur");
             message.Append("source");
-            message.Append("surface@127.0.0.1");
+            message.Append("surface@" + localIP[3]);
             return message;
         }
         public static OSCMessage aliveMessage(ReadOnlyContactCollection contacts)

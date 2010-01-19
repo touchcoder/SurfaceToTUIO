@@ -297,11 +297,11 @@ namespace SurfaceToTUIO
                         if (c == null)
                         {
                             removedContacts.Add(contact);
-                            if (contact.IsFingerRecognized && Properties.Settings.Default.SendFingersAsBlobs == false)
+                            if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
                             {
                                 removedFingers.Add(contact);
                             }
-                            else if (contact.IsFingerRecognized && Properties.Settings.Default.SendFingersAsBlobs == true)
+                            if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
                             {
                                 removedBlobs.Add(contact);
                             }
@@ -332,11 +332,11 @@ namespace SurfaceToTUIO
                             processContactManipulator(contact, currentContacts, previousContacts);
 
                             // Put the Contact into the according List
-                            if (contact.IsFingerRecognized && Properties.Settings.Default.SendFingersAsBlobs == false)
+                            if (contact.IsFingerRecognized &&  (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
                             {
                                 changedFingers.Add(contact);
                             }
-                            else if (contact.IsFingerRecognized && Properties.Settings.Default.SendFingersAsBlobs == true)
+                            if (contact.IsFingerRecognized &&  (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
                             {
                                 changedBlobs.Add(contact);
                             }
@@ -357,11 +357,11 @@ namespace SurfaceToTUIO
                             // Add a Manipulation Processor to each contact
                             // This is done for extracting the contact velocity directly from Surface SDK
                             addManipulationProcessor(contact);
-                            if (contact.IsFingerRecognized && Properties.Settings.Default.SendFingersAsBlobs == false)
+                            if (contact.IsFingerRecognized &&  (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
                             {
                                 addedFingers.Add(contact);
                             }
-                            else if (contact.IsFingerRecognized && Properties.Settings.Default.SendFingersAsBlobs == true)
+                            if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
                             {
                                 addedBlobs.Add(contact);
                             }

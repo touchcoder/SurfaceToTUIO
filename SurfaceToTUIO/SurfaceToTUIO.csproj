@@ -86,6 +86,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helper.cs" />
     <Compile Include="OSC\OSCBundle.cs" />
     <Compile Include="OSC\OSCMessage.cs" />
     <Compile Include="OSC\OSCPacket.cs" />
