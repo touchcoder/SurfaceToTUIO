@@ -28,6 +28,13 @@
 *
 ***************************************************************************************/
 
+/*
+ * Heavily modified by Julian Stahnke, FH Potsdam, 12 October 2010
+ * The last finger now disappears correctly when removed from Surface
+ * Fiducials and fingers work at the same time, even in Flash
+ * 
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -272,45 +279,40 @@ namespace SurfaceToTUIO
                 List<Contact> addedContacts = new List<Contact>();
                 List<Contact> removedContacts = new List<Contact>();
                 List<Contact> changedContacts = new List<Contact>();
+                List<Contact> aliveContacts = new List<Contact>();
 
                 List<Contact> addedFingers = new List<Contact>();
                 List<Contact> removedFingers = new List<Contact>();
                 List<Contact> changedFingers = new List<Contact>();
+                List<Contact> aliveFingers = new List<Contact>();
 
                 List<Contact> addedTags = new List<Contact>();
                 List<Contact> removedTags = new List<Contact>();
                 List<Contact> changedTags = new List<Contact>();
+                List<Contact> aliveTags = new List<Contact>();
 
                 List<Contact> addedBlobs = new List<Contact>();
                 List<Contact> removedBlobs = new List<Contact>();
                 List<Contact> changedBlobs= new List<Contact>();
+                List<Contact> aliveBlobs = new List<Contact>();
 
                 ReadOnlyContactCollection currentContacts = contactTarget.GetState();
 
                 // Write all unactive previous Contacts into the according removed-Lists
-                if (previousContacts != null)
-                {
-                    foreach (Contact contact in previousContacts)
-                    {
+                if (previousContacts != null) {
+                    foreach (Contact contact in previousContacts) {
                         Contact c = null;
                         currentContacts.TryGetContactFromId(contact.Id, out c);
-                        if (c == null)
-                        {
+                        if (c == null) {
                             removedContacts.Add(contact);
-                            if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
-                            {
+                            if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true)) {
                                 removedFingers.Add(contact);
                             }
-                            if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
-                            {
+                            if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true)) {
                                 removedBlobs.Add(contact);
-                            }
-                            else if (contact.IsTagRecognized)
-                            {
+                            } else if (contact.IsTagRecognized) {
                                 removedTags.Add(contact);
-                            }
-                            else
-                            {
+                            } else {
                                 removedBlobs.Add(contact);
                             }
                         }
@@ -319,101 +321,91 @@ namespace SurfaceToTUIO
                     // Throw away unused Manipulation Processors
                     cleanManipulationProcessorList(removedContacts);
 
+                    foreach (Contact contact in currentContacts) {
+                        aliveContacts.Add(contact);
 
-                    foreach (Contact contact in currentContacts)
-                    {
+                        // Put the Contact into the according List
+                        if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true)) {
+                            aliveFingers.Add(contact);
+                        }
+                        if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true)) {
+                            aliveBlobs.Add(contact);
+                        } else if (contact.IsTagRecognized) {
+                            aliveTags.Add(contact);
+                        } else {
+                            aliveBlobs.Add(contact);
+                        }
                         Contact c = null;
                         previousContacts.TryGetContactFromId(contact.Id, out c);
-                        if (c != null)
-                        {
-                            changedContacts.Add(contact);
-                            
-                            // Invoke the processing of a Contact's Manipulation Processor
-                            processContactManipulator(contact, currentContacts, previousContacts);
+                        if (c != null) {
+                            if (c.ToString() != contact.ToString()) {
+                                changedContacts.Add(contact);
 
-                            // Put the Contact into the according List
-                            if (contact.IsFingerRecognized &&  (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
-                            {
-                                changedFingers.Add(contact);
-                            }
-                            if (contact.IsFingerRecognized &&  (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
-                            {
-                                changedBlobs.Add(contact);
-                            }
+                                // Invoke the processing of a Contact's Manipulation Processor
+                                processContactManipulator(contact, currentContacts, previousContacts);
 
-                            else if (contact.IsTagRecognized)
-                            {
-                                changedTags.Add(contact);
+                                // Put the Contact into the according List
+                                if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true)) {
+                                    changedFingers.Add(contact);
+                                }
+                                if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true)) {
+                                    changedBlobs.Add(contact);
+                                } else if (contact.IsTagRecognized) {
+                                    changedTags.Add(contact);
+                                } else {
+                                    changedBlobs.Add(contact);
+                                }
                             }
-                            else
-                            {
-                                changedBlobs.Add(contact);
-                            }
-                        }
-                        else
-                        {
+                        } else {
                             addedContacts.Add(contact);
-
                             // Add a Manipulation Processor to each contact
                             // This is done for extracting the contact velocity directly from Surface SDK
                             addManipulationProcessor(contact);
-                            if (contact.IsFingerRecognized &&  (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
-                            {
+                            if (contact.IsFingerRecognized &&  (Properties.Settings.Default.SendFingersAsBlobs == false || Properties.Settings.Default.SendFingersAlsoAsBlobs == true)) {
                                 addedFingers.Add(contact);
                             }
-                            if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true))
-                            {
+                            if (contact.IsFingerRecognized && (Properties.Settings.Default.SendFingersAsBlobs == true || Properties.Settings.Default.SendFingersAlsoAsBlobs == true)) {
                                 addedBlobs.Add(contact);
-                            }
-                            else if (contact.IsTagRecognized)
-                            {
+                            } else if (contact.IsTagRecognized) {
                                 addedTags.Add(contact);
-                            }
-                            else
-                            {
+                            } else {
                                 addedBlobs.Add(contact);
                             }
                         }
                     }
 
                     // Send the TUIO messages
-                    sendTUIO_2DCur(changedFingers, previousContacts);
-                    sendTUIO_2DObj(changedTags, previousContacts);
-                    sendTUIO_2DBlb(changedBlobs, previousContacts);
-                }
-                else
-                {
-                    foreach (Contact c in currentContacts)
-                    {
+                    //sendTUIO_2DCur(changedFingers, previousContacts);
+                    //sendTUIO_2DObj(changedTags, previousContacts);
+                    //sendTUIO_2DBlb(changedBlobs, previousContacts);
+                    
+                    if (addedFingers.Count != 0 || changedFingers.Count != 0 || removedFingers.Count != 0) {
+                        sendTUIO_2DCur(aliveFingers, previousContacts);
+                    }
+                    if (addedTags.Count != 0 || changedTags.Count != 0 || removedTags.Count != 0) {
+                        sendTUIO_2DObj(aliveTags, previousContacts);
+                    }
+                } else {
+                    foreach (Contact c in currentContacts) {
                         addedContacts.Add(c);
 
-                        if (c.IsFingerRecognized)
-                        {
+                        if (c.IsFingerRecognized) {
                             addedFingers.Add(c);
                         }
-                        if (c.IsTagRecognized)
-                        {
+                        if (c.IsTagRecognized) {
                             addedTags.Add(c);
                         }
                     }
                 }
-
-
                 previousContacts = currentContacts;
 
-                foreach (Contact c in changedContacts)
-                {
+                foreach (Contact c in changedContacts) {
                     updateHistoryData(c.Id, c.FrameTimestamp);
                 }
-                foreach (Contact c in removedContacts)
-                {
+                foreach (Contact c in removedContacts) {
                     cleanHistory(c.Id);
                 }
-
-
-
             }
-
             base.Update(gameTime);
         }
 
@@ -654,7 +646,6 @@ namespace SurfaceToTUIO
         #endregion
 
 #region TUIO stuff
-
         /// <summary>
         /// Sends a /tuio/2Dobj message
         /// The remote Host is specified in the appConfig
@@ -664,9 +655,7 @@ namespace SurfaceToTUIO
         /// <param name="previousContacts">Contacts from the previous frame</param>
         public void sendTUIO_2DObj(List<Contact> contacts, ReadOnlyContactCollection previousContacts)
         {
-            if (contacts.Count == 0)
-                return;
-
+            //if (contacts.Count == 0) return;
             InteractiveSurface surface = Microsoft.Surface.Core.InteractiveSurface.DefaultInteractiveSurface;
             double width = surface.Right - surface.Left;
             double height = surface.Bottom - surface.Top;
@@ -725,9 +714,7 @@ namespace SurfaceToTUIO
         /// <param name="previousContacts">Contacts from the previous frame</param>
         public void sendTUIO_2DCur(List<Contact> contacts, ReadOnlyContactCollection previousContacts)
         {
-            if (contacts.Count == 0)
-                return;
-
+            //if (contacts.Count == 0) return;
             InteractiveSurface surface = Microsoft.Surface.Core.InteractiveSurface.DefaultInteractiveSurface;
             double width = surface.Right - surface.Left;
             double height = surface.Bottom - surface.Top;
@@ -771,9 +758,7 @@ namespace SurfaceToTUIO
         /// <param name="previousContacts">Contacts from the previous frame</param>
         public void sendTUIO_2DBlb(List<Contact> contacts, ReadOnlyContactCollection previousContacts)
         {
-            if (contacts.Count == 0)
-                return;
-
+            //if (contacts.Count == 0) return;
             InteractiveSurface surface = Microsoft.Surface.Core.InteractiveSurface.DefaultInteractiveSurface;
             double width = surface.Right - surface.Left;
             double height = surface.Bottom - surface.Top;
