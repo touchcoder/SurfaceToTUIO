@@ -32,6 +32,7 @@
  * Heavily modified by Julian Stahnke, FH Potsdam, 12 October 2010
  * The last finger now disappears correctly when removed from Surface
  * Fiducials and fingers work at the same time, even in Flash
+ * http://github.com/touchcoder/SurfaceToTUIO
  * 
 */
 
